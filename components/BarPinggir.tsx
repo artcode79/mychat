@@ -101,22 +101,43 @@ export default function BarPinggir({
           <div className="flex flex-col p-4">
             <Link
               href="/"
-              className="block rounded-md p-2 text-white hover:bg-blue-500"
+              className="block rounded-md p-2 text-white mb-2 hover:bg-blue-500 bg-slate-800"
               onClick={handleLinkClick}
             >
               Home
             </Link>
             <Link
               href="/dashboard"
-              className="block rounded-md p-2 text-white hover:bg-blue-500"
+              className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
               onClick={handleLinkClick}
             >
               Dashboard
             </Link>
+            <Link
+              href="/kategori"
+              className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
+              onClick={handleLinkClick}
+            >
+              Kategori
+            </Link>
+            <Link
+              href="/product"
+              className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
+              onClick={handleLinkClick}
+            >
+              Product
+            </Link>
+            <Link
+              href="/profile"
+              className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
+              onClick={handleLinkClick}
+            >
+              Profile
+            </Link>
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-7xl px-4">{children}</div>
+      <div className=" max-w-7xl">{children}</div>
     </>
   );
 }

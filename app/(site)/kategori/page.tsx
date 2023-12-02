@@ -1,120 +1,126 @@
 "use client";
-import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { getKategori, deleteKategori } from "@/lib/db/kategori";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { db } from "@/lib/firebase";
 import {
-  getDocs,
-  query,
-  doc,
-  collection,
   addDoc,
-  orderBy,
+  collection,
+  doc,
+  setDoc,
   serverTimestamp,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 
 export default function page() {
-  const [data, setData] = useState<any>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const router = useRouter();
+  const [error, setError] = useState("");
   const [slug, setSlug] = useState("");
   const [name, setName] = useState("");
 
+  const handleDelete = async (id: string) => {
+    await deleteKategori(id);
+    router.refresh();
+  };
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["kategori"],
+    queryFn: () => getKategori(),
+  });
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
     try {
-      const docRef = await addDoc(collection(db, "kategori"), {
+      const kategoriRef = collection(db, "kategori");
+      const newKategori = {
         name: name,
-        slug: slug,
+        slug: name.toLowerCase().replace(/\s+/g, "-"),
         createdAt: serverTimestamp(),
-      });
-      alert(`Kategori ${docRef.id} berhasil dibuat`);
-      setLoading(false);
+        timestamp: serverTimestamp(),
+      };
+      await addDoc(kategoriRef, newKategori);
+      router.refresh();
     } catch (error: any) {
-      setError(error);
-      setLoading(false);
+      setError(error.message);
+      alert(error.message);
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const q = query(collection(db, "kategori"));
-        const querySnapshot = await getDocs(q);
-        const products = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setData(products);
-        setLoading(false);
-      } catch (error: any) {
-        setError(error);
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-  console.log(data);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-  if (loading) return <div>Loading...</div>;
-
-  if (error) return <div>{error || "Something went wrong"}</div>;
+  if (isError) {
+    return <div>Error fetching data</div>;
+  }
 
   return (
     <>
       <div className="flex flex-col justify-center w-screen bg-gradient-to-b from-[#2e026d] to-[#0e102e] h-screen">
-        <div className="flex flex-col items-center justify-center gap-12 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            Kategori
-          </h1>
-          <div className="flex flex-col justify-center gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20">
-            {data.length === 0 ? (
-              <h3 className="text-2xl font-bold">Tidak ada kategori</h3>
+        <div className="max-w-3xl mx-auto">
+          <div className="flex flex-col justify-center rounded-xl bg-white/10 p-4 text-white hover:bg-white/20">
+            {data?.length === 0 ? (
+              <h3 className="text-xl text-sky-600 text-center italic mt-4 mb-2 px-2 py-1 rounded-lg font-bold">
+                Belum ada kategori
+              </h3>
             ) : null}
 
-            <h3 className="text-2xl font-bold">Kategori →</h3>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <label htmlFor="name">Name</label>
+            <h3 className="text-xl text-sky-600 text-center italic mt-4 mb-2 px-2 py-1 rounded-lg font-bold">
+              Tambah Kategori
+            </h3>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2">
               <input
                 type="text"
                 name="name"
-                id="name"
-                className="border p-2 rounded text-slate-950 bg-slate-50"
-                placeholder="Name"
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Nama kategori"
+                autoComplete="off"
+                required
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+                minLength={3}
+                maxLength={20}
+                className="rounded-lg border-2 text-black border-white/10 p-2"
               />
-              <label htmlFor="slug">Slug</label>
               <input
                 type="text"
                 name="slug"
-                id="slug"
-                className="border p-2 rounded text-slate-950 bg-slate-50"
-                placeholder="Slug"
-                onChange={(e) => setSlug(e.target.value)}
+                placeholder="Slug kategori"
+                className="rounded-lg border-2 border-white/10 p-2"
               />
               <button
                 type="submit"
-                className="rounded-xl bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                className="rounded-lg bg-white/10 p-2 text-white hover:bg-white/20"
               >
-                Submit Kategori Baru 🚀{" "}
-                <span className="text-sm font-medium">
-                  (Kategori akan ditampilkan di halaman kategori)
-                </span>
+                Tambah
               </button>
-              {error ? <p className="text-red-500">{error}</p> : null}
-              {loading ? <p className="text-blue-500">Loading...</p> : null}
             </form>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            {data.map((item: any) => (
-              <Link
-                href={`/kategori/${item.slug}`}
-                key={item.id}
-                className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20"
-              >
-                <h3 className="text-2xl font-bold">{item.name}</h3>
-                <p className="text-sm">{item.slug}</p>
-              </Link>
+        </div>
+        {/* buatkan kategori di sini dengan card di grid atau flex 4 baris */}
+        <div className="flex flex-col justify-center gap-4 my-3 mx-5 rounded-xl bg-white/10 p-4 text-white hover:bg-white/20">
+          <h3 className="text-2xl font-bold">Kategori →</h3>
+          <div className="grid grid-cols-4 gap-4">
+            {data?.map((kategori: any, index) => (
+              <div className="flex flex-col gap-2">
+                <Link
+                  key={index}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`/kategori/${kategori.slug}`}
+                  className="rounded-lg bg-white/10 p-2 text-white hover:bg-white/20"
+                >
+                  {kategori.name}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(kategori.id)}
+                  className="justify-self-end items-end rounded-lg bg-white/10 p-2 text-white hover:bg-white/20"
+                >
+                  Hapus
+                </button>
+              </div>
             ))}
           </div>
         </div>

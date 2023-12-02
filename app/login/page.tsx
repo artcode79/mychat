@@ -25,6 +25,7 @@ const page = () => {
         password
       );
       const user = userCredential.user;
+
       router.push("/dashboard");
     } catch (error) {
       setError("Invalid email or password");

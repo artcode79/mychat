@@ -23,6 +23,17 @@ export const getKategoriById = async (id: any) => {
   return products[0];
 };
 
+export const createKategori = async (data: any) => {
+  const kategoriRef = doc(db, "kategori");
+  const newKategori = {
+    kategori: data,
+    slug: data,
+    timestamp: serverTimestamp(),
+  };
+  await setDoc(kategoriRef, newKategori);
+  return newKategori;
+};
+
 export const getKategoriList = async () => {
   const q = query(collection(db, "kategori"), orderBy("timestamp", "desc"));
   const querySnapshot = await getDocs(q);
@@ -34,7 +45,7 @@ export const getKategoriList = async () => {
 };
 
 export const getKategori = async () => {
-  const q = query(collection(db, "kategori"), orderBy("timestamp", "desc"));
+  const q = query(collection(db, "kategori"));
   const querySnapshot = await getDocs(q);
   const products = querySnapshot.docs.map((doc) => ({
     id: doc.id,

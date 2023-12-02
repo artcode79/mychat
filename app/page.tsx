@@ -23,7 +23,7 @@ export default function Home() {
             </div>
           </Link>
           <Link
-            href="https://create.t3.gg/en/introduction"
+            href="/dashboard"
             className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 text-white hover:bg-slate-600"
           >
             <h3 className="text-2xl font-bold">Documentation →</h3>

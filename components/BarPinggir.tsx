@@ -121,6 +121,13 @@ export default function BarPinggir({
               Kategori
             </Link>
             <Link
+              href="/kasir"
+              onClick={handleLinkClick}
+              className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
+            >
+              Kasir
+            </Link>
+            <Link
               href="/product"
               className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
               onClick={handleLinkClick}
@@ -133,6 +140,13 @@ export default function BarPinggir({
               onClick={handleLinkClick}
             >
               Profile
+            </Link>
+            <Link
+              href="/setting"
+              className="block rounded-md p-2 text-white mb-2 bg-slate-800 hover:bg-blue-500"
+              onClick={handleLinkClick}
+            >
+              Setting
             </Link>
           </div>
         </div>
